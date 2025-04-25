@@ -161,8 +161,66 @@
   <div class="wave"></div>
 </section>
 <script>
+document.getElementById("niche").addEventListener("change", function() {
+  const selected = this.value;
+  const labelMap = {
+    real_estate: {
+      appointments: 'Conversion to viewings (%):',
+      closing: 'Closing rate from viewings (%):',
+      value: 'Average commission per sale (€):'
+    },
+    clinics: {
+      appointments: 'Conversion to treatments (%):',
+      closing: 'Treatment acceptance rate (%):',
+      value: 'Average treatment value (€):'
+    },
+    insurance: {
+      appointments: 'Conversion to policy discussions (%):',
+      closing: 'Policy acceptance rate (%):',
+      value: 'Average policy value (€):'
+    },
+    finance: {
+      appointments: 'Conversion to consultations (%):',
+      closing: 'Consultation acceptance rate (%):',
+      value: 'Average deal value (€):'
+    },
+    agencies: {
+      appointments: 'Conversion to client meetings (%):',
+      closing: 'Client acquisition rate (%):',
+      value: 'Average contract value (€):'
+    },
+    collections: {
+      appointments: 'Conversion to debtor contacts (%):',
+      closing: 'Debt recovery rate (%):',
+      value: 'Average debt recovered (€):'
+    },
+    nonprofit: {
+      appointments: 'Conversion to donor meetings (%):',
+      closing: 'Donation commitment rate (%):',
+      value: 'Average donation amount (€):'
+    }
+  };
+
+  const labels = labelMap[selected];
+  if (labels) {
+    document.getElementById("label_appointments").innerText = labels.appointments;
+    document.getElementById("label_closing").innerText = labels.closing;
+    document.getElementById("label_value").innerText = labels.value;
+  }
+});
 let roiChart;
 function calculateROI() {
+  const selectedNiche = document.getElementById("niche").value;
+  const labelMap = {
+    real_estate: 'Viewings',
+    clinics: 'Treatments',
+    insurance: 'Policy Discussions',
+    finance: 'Consultations',
+    agencies: 'Client Meetings',
+    collections: 'Debtor Contacts',
+    nonprofit: 'Donor Meetings'
+  };
+  const metricLabel = labelMap[selectedNiche] || 'Appointments';
   const leads = parseFloat(document.getElementById("leads").value) || 0;
   const validPct = 0.80;
   const contactedPct = parseFloat(document.getElementById("contacted").value) / 100 || 0;
@@ -194,10 +252,10 @@ function calculateROI() {
   document.getElementById("output").innerHTML = `
     <h4>📊 ROI Breakdown</h4>
     <p><strong>Valid Leads:</strong> ${Math.round(validLeads)}</p>
-    <p><strong>Appointments (Current):</strong> ${Math.round(appointmentsNow)}</p>
+    <p><strong>${metricLabel} (Current):</strong> ${Math.round(appointmentsNow)}</p>
     <p><strong>Clients (Closed - Current):</strong> ${Math.round(clientsNow)}</p>
     <p><strong>Revenue (Current):</strong> <span style='color:#ff7675;'>€${Math.round(revenueNow)}</span></p>
-    <p><strong>Appointments (Callistry +5%):</strong> ${Math.round(appointmentsCallistry)}</p>
+    <p><strong>${metricLabel} (Callistry +5%):</strong> ${Math.round(appointmentsCallistry)}</p>
     <p><strong>Clients (Closed - Callistry):</strong> ${Math.round(clientsCallistry)}</p>
     <p><strong>Revenue (Callistry):</strong> <span style='color:#00cec9;'>€${Math.round(revenueCallistry)}</span></p>
     <p><strong>Revenue After Training:</strong> <span style='color:#00cec9;'>€${Math.round(revenueAfterTraining)}</span></p>
@@ -211,7 +269,7 @@ function calculateROI() {
     roiChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['Revenue Current', 'Revenue Callistry', 'Post-Training Potential'],
+        labels: ['Revenue (Current)', 'Revenue (Callistry)', 'Revenue (Optimized)'],
         datasets: [{
           label: '€ Value',
           data: [Math.round(revenueNow), Math.round(revenueCallistry), Math.round(revenueAfterTraining)],
@@ -236,7 +294,7 @@ function calculateROI() {
     <h4>🔄 A/B Comparison Table</h4>
     <table class="comparison-table">
       <tr><th>Metric</th><th>Current</th><th>With Callistry</th><th>Post-Training</th></tr>
-      <tr><td>Appointments</td><td>${Math.round(appointmentsNow)}</td><td>${Math.round(appointmentsCallistry)}</td><td>${Math.round(appointmentsCallistry)}</td></tr>
+      <tr><td>${metricLabel}</td><td>${Math.round(appointmentsNow)}</td><td>${Math.round(appointmentsCallistry)}</td><td>${Math.round(appointmentsCallistry)}</td></tr>
       <tr><td>Clients</td><td>${Math.round(clientsNow)}</td><td>${Math.round(clientsCallistry)}</td><td>${Math.round(clientsAfterTraining)}</td></tr>
       <tr><td>Revenue</td><td>€${Math.round(revenueNow)}</td><td>€${Math.round(revenueCallistry)}</td><td>€${Math.round(revenueAfterTraining)}</td></tr>
     </table>
