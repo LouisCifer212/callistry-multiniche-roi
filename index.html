@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROI Calculator - Multi-Niche</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1e1e82, #5e2d91);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      background-attachment: fixed;
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .section {
+      padding: 50px 20px;
+      position: relative;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+    h2.section-title {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 32px;
+      color: #fff;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type=number], input[type=range], button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    input[type=number] {
+      background-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    .form-note {
+      color: #ccc;
+      font-size: 14px;
+    }
+    .btn {
+      background-color: #ffc107;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 20px;
+    }
+    .btn:hover {
+      background-color: #ffca2c;
+    }
+    .chart-wrapper, .output, .table-wrapper {
+      margin-top: 40px;
+      background: rgba(255, 255, 255, 0.07);
+      padding: 20px;
+      border-radius: 15px;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #fff;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 12px;
+      border: 1px solid #ccc;
+    }
+    .comparison-table th {
+      background-color: rgba(255,255,255,0.1);
+    }
+    .wave {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 100px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,288L48,272C96,256,192,224,288,213.3C384,203,480,213,576,197.3C672,181,768,139,864,138.7C960,139,1056,181,1152,181.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+      background-size: cover;
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 80%;
+      height: 8px;
+      background: #ccc;
+      border-radius: 5px;
+      outline: none;
+      margin-top: 10px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #ffc107;
+      border: 2px solid #fff;
+      cursor: pointer;
+      margin-top: -8px;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #ffc107;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">📈 ROI Calculator – Multi-Niche</h2>
+    <form id="roiForm" class="form">
+      <label>Monthly leads received:</label>
+      <input type="number" id="leads" value="2000">
+
+      <label>% of Valid Leads (fixed at 80% based on CRM benchmarks):</label>
+      <input type="number" id="valid_pct" value="80" disabled>
+      <small class="form-note">Note: Based on industry CRM benchmarks, 20% of leads are typically invalid, fake or un-qualified for a purchase or a demo.</small>
+
+      <label>Leads contacted (current %):</label>
+      <input type="number" id="contacted" value="30">
+
+      <label>Conversion to appointments (%):</label>
+      <input type="number" id="appointments" value="40">
+
+      <label>Closing rate from appointments (%):</label>
+      <input type="number" id="closing" value="10">
+
+      <label>Average value per client (€):</label>
+      <input type="number" id="value" value="3000">
+
+      <label>Monthly Callistry cost (€):</label>
+      <input type="number" id="callistry_cost" value="497" min="497">
+
+      <label>Monthly Ads cost (€):</label>
+      <input type="number" id="ads_cost" value="500">
+
+      <button type="button" class="btn" onclick="calculateROI()">Calculate ROI</button>
+    </form>
+
+    <div id="output" class="output fade-in"></div>
+
+    <div id="chart-section" class="chart-wrapper fade-in">
+      <canvas id="roiChart" style="margin-top:30px;"></canvas>
+      <div style="margin-top: 20px;">
+        <label for="closing_boost">🎯 Post-training closing rate: <span id="boostValue">35%</span></label><br>
+        <input type="range" id="closing_boost" min="0" max="100" value="35" oninput="document.getElementById('boostValue').innerText = this.value + '%'; calculateROI();">
+        <small class="form-note">This simulates your potential revenue improvement after receiving closing training or consulting.</small>
+      </div>
+    </div>
+
+    <div id="ab-comparison" class="table-wrapper fade-in"></div>
+
+    <button onclick="downloadPDF()" class="btn" style="margin-top:30px;">📄 Scarica Report in PDF</button>
+  </div>
+  <div class="wave"></div>
+</section>
+<script>
+let roiChart;
+function calculateROI() {
+  const leads = parseFloat(document.getElementById("leads").value) || 0;
+  const validPct = 0.80;
+  const contactedPct = parseFloat(document.getElementById("contacted").value) / 100 || 0;
+  const appointmentsPct = parseFloat(document.getElementById("appointments").value) / 100 || 0;
+  const closingPct = parseFloat(document.getElementById("closing").value) / 100 || 0;
+  const closingBoostPct = parseFloat(document.getElementById("closing_boost").value) / 100 || 0.35;
+  const valuePerClient = parseFloat(document.getElementById("value").value) || 0;
+  const callistryCost = parseFloat(document.getElementById("callistry_cost").value) || 0;
+  const adsCost = parseFloat(document.getElementById("ads_cost").value) || 0;
+
+  const validLeads = leads * validPct;
+  const contactedLeads = validLeads * contactedPct;
+  const appointmentsNow = contactedLeads * appointmentsPct;
+  const clientsNow = appointmentsNow * closingPct;
+  const revenueNow = clientsNow * valuePerClient;
+
+  const callistryAppointmentsPct = appointmentsPct + 0.05;
+  const appointmentsCallistry = validLeads * callistryAppointmentsPct;
+  const clientsCallistry = appointmentsCallistry * closingPct;
+  const revenueCallistry = clientsCallistry * valuePerClient;
+
+  const clientsAfterTraining = appointmentsCallistry * closingBoostPct;
+  const revenueAfterTraining = clientsAfterTraining * valuePerClient;
+
+  const totalCost = callistryCost + adsCost;
+  const extraProfit = revenueCallistry - revenueNow;
+  const roi = totalCost > 0 ? ((extraProfit - totalCost) / totalCost) * 100 : 0;
+
+  document.getElementById("output").innerHTML = `
+    <h4>📊 ROI Breakdown</h4>
+    <p><strong>Valid Leads:</strong> ${Math.round(validLeads)}</p>
+    <p><strong>Appointments (Current):</strong> ${Math.round(appointmentsNow)}</p>
+    <p><strong>Clients (Closed - Current):</strong> ${Math.round(clientsNow)}</p>
+    <p><strong>Revenue (Current):</strong> <span style='color:#ff7675;'>€${Math.round(revenueNow)}</span></p>
+    <p><strong>Appointments (Callistry +5%):</strong> ${Math.round(appointmentsCallistry)}</p>
+    <p><strong>Clients (Closed - Callistry):</strong> ${Math.round(clientsCallistry)}</p>
+    <p><strong>Revenue (Callistry):</strong> <span style='color:#00cec9;'>€${Math.round(revenueCallistry)}</span></p>
+    <p><strong>Revenue After Training:</strong> <span style='color:#00cec9;'>€${Math.round(revenueAfterTraining)}</span></p>
+    <hr>
+    <p><strong>Total Monthly Cost:</strong> €${Math.round(totalCost)}</p>
+    <p><strong>ROI:</strong> <span style='color:${roi >= 0 ? '#00b894' : '#d63031'};'>${Math.round(roi)}%</span></p>
+  `;
+
+  if (!roiChart) {
+    const ctx = document.getElementById('roiChart').getContext('2d');
+    roiChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Revenue Current', 'Revenue Callistry', 'Post-Training Potential'],
+        datasets: [{
+          label: '€ Value',
+          data: [Math.round(revenueNow), Math.round(revenueCallistry), Math.round(revenueAfterTraining)],
+          backgroundColor: ['#f39c12', '#007bff', '#28a745']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#ffffff' }
+          },
+          x: {
+            ticks: { color: '#ffffff' }
+          }
+        }
+      }
+    });
+  } else {
+    roiChart.data.datasets[0].data = [Math.round(revenueNow), Math.round(revenueCallistry), Math.round(revenueAfterTraining)];
+    roiChart.update();
+  }
+
+  document.getElementById("ab-comparison").innerHTML = `
+    <h4>🔄 A/B Comparison Table</h4>
+    <table class="comparison-table">
+      <tr><th>Metric</th><th>Current</th><th>With Callistry</th><th>Post-Training</th></tr>
+      <tr><td>Appointments</td><td>${Math.round(appointmentsNow)}</td><td>${Math.round(appointmentsCallistry)}</td><td>${Math.round(appointmentsCallistry)}</td></tr>
+      <tr><td>Clients</td><td>${Math.round(clientsNow)}</td><td>${Math.round(clientsCallistry)}</td><td>${Math.round(clientsAfterTraining)}</td></tr>
+      <tr><td>Revenue</td><td>€${Math.round(revenueNow)}</td><td>€${Math.round(revenueCallistry)}</td><td>€${Math.round(revenueAfterTraining)}</td></tr>
+    </table>
+  `;
+}
+
+function downloadPDF() {
+  const printWindow = window.open('', '', 'width=800,height=1000');
+  printWindow.document.write('<html><head><title>ROI Report</title>');
+  printWindow.document.write('<style>body{font-family:sans-serif;padding:30px;} h4{margin-top:30px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{padding:10px;border:1px solid #ccc;} th{background:#eee;}</style>');
+  printWindow.document.write('</head><body>');
+  printWindow.document.write(document.getElementById("output").innerHTML);
+  printWindow.document.write(document.getElementById("ab-comparison").innerHTML);
+  printWindow.document.write('</body></html>');
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+}
+window.onload = () => calculateROI();
+</script>
+</body>
+</html>
