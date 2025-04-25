@@ -303,18 +303,25 @@ function calculateROI() {
 }
 
 function downloadPDF() {
+  const selectedNicheText = document.getElementById("niche").selectedOptions[0].text;
   const printWindow = window.open('', '', 'width=800,height=1000');
+  
   printWindow.document.write('<html><head><title>ROI Report</title>');
-  printWindow.document.write('<style>body{font-family:sans-serif;padding:30px;} h4{margin-top:30px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{padding:10px;border:1px solid #ccc;} th{background:#eee;}</style>');
+  printWindow.document.write('<style>body{font-family:sans-serif;padding:30px;} h2{margin-top:0;} h4{margin-top:30px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{padding:10px;border:1px solid #ccc;} th{background:#eee;}</style>');
   printWindow.document.write('</head><body>');
+  printWindow.document.write(`<h2>Selected Industry: ${selectedNicheText}</h2>`);
+  
+  // Aggiungi il contenuto dell'output e della tabella comparativa
   printWindow.document.write(document.getElementById("output").innerHTML);
   printWindow.document.write(document.getElementById("ab-comparison").innerHTML);
+  
   printWindow.document.write('</body></html>');
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
   printWindow.close();
 }
+
 </script>
 </body>
 </html>
